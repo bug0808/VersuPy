@@ -3,7 +3,17 @@ from src.match import Match
 from src.competitor import Competitor
 
 class Swiss:
+    """
+    Swiss-system tournament implementation.
+    """
     def __init__(self, competitors: Union[List[str], List[Competitor]], rounds: Optional[int] = None) -> None:
+        """
+        Initialize a Swiss-system tournament.
+
+        Args:
+            competitors: List of competitor names or Competitor objects.
+            rounds: Number of rounds to play (default: number of competitors - 1).
+        """
         self.competitors: List[Competitor] = [Competitor(name) if isinstance(name, str) else name for name in competitors]
         for c in self.competitors:
             if not hasattr(c, "matches"):
@@ -13,13 +23,27 @@ class Swiss:
         self.max_rounds: int = rounds if rounds else len(competitors) - 1
         self.matches: List[List[Match]] = []
         self._all_competitors: List[Competitor] = list(self.competitors)
+        self.results: List[tuple[Competitor, Competitor, Optional[Competitor]]] = []
+        
 
     def generate_round(self) -> List[Match]:
+        """
+        Generate pairings for the next round.
+
+        Returns:
+            List of Match objects for the round.
+        """
         round_matches: List[Match] = self.generate_round_pairings()
         self.round += 1
         return round_matches
 
     def generate_round_pairings(self) -> List[Match]:
+        """
+        Pair competitors with similar win records for the next round.
+
+        Returns:
+            List of Match objects for the round.
+        """
         competitors: List[Competitor] = sorted(self.competitors, key=lambda c: c.wins, reverse=True)
         new_matches: List[Match] = []
 
@@ -46,11 +70,25 @@ class Swiss:
         return new_matches
 
     def record_match_results(self, results: List[Competitor]) -> None:
+        """
+        Record the results for the current round and update the results log.
+
+        Args:
+            results: List of winning Competitor objects for the current round.
+        """
         for match, winner in zip(self.matches[-1], results):
             match.set_winner(winner)
             winner.wins += 1
+            self.results.append((match.competitor_a, match.competitor_b, winner))
+        
 
     def calculate_buchholz_scores(self) -> Dict[str, int]:
+        """
+        Calculate the Buchholz score for each competitor.
+
+        Returns:
+            Dictionary mapping competitor names to their Buchholz scores.
+        """
         buchholz_scores: Dict[str, int] = {}
         for competitor in self._all_competitors:
             score: int = 0
@@ -62,13 +100,29 @@ class Swiss:
         return buchholz_scores
 
     def advance_round(self) -> None:
+        """
+        Advance to the next round if possible.
+        """
         if self.rounds_played < self.max_rounds:
             self.generate_round_pairings()
             self.rounds_played += 1
+        
 
     def get_standings(self) -> List[Competitor]:
+        """
+        Return competitors sorted by their final standings, considering Buchholz if necessary.
+
+        Returns:
+            List of Competitor objects sorted by standings.
+        """
         self.calculate_buchholz_scores()
         return sorted(self._all_competitors, key=lambda c: (c.wins, getattr(c, "buchholz_score", 0)), reverse=True)
 
     def is_tournament_over(self) -> bool:
+        """
+        Check if the tournament has concluded.
+
+        Returns:
+            True if the tournament is over, False otherwise.
+        """
         return self.rounds_played >= self.max_rounds

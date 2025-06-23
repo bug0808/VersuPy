@@ -31,3 +31,16 @@ def test_is_tournament_over():
     while not rr.is_tournament_over():
         rr.advance_to_next_round()
     assert rr.is_tournament_over()
+
+def test_results_tracking_round_robin():
+    competitors = [Competitor("Alice"), Competitor("Bob"), Competitor("Charlie"), Competitor("David")]
+    rr = RoundRobin(competitors)
+    # Play all rounds
+    while not rr.is_tournament_over():
+        for match in rr.get_current_round_matches():
+            match.set_winner(match.competitor_a)
+        rr.advance_to_next_round()
+    # There should be 6 results (for 4 competitors: 4*3/2 = 6 matches)
+    assert len(rr.results) == 6
+    for result in rr.results:
+        assert result[2] is not None
