@@ -1,7 +1,7 @@
 import pytest
-from VersuPy.competitor import Competitor
-from VersuPy.tournament import Tournament
-from VersuPy.match import Match
+from src.competitor import Competitor
+from src.tournament import Tournament
+from src.match import Match
 
 
 

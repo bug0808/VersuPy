@@ -1,7 +1,7 @@
-from .single_elim import SingleElimination
-from .double_elim import DoubleElimination
-from .round_robin import RoundRobin
-from .swiss import Swiss
+from src.single_elim import SingleElimination
+from src.double_elim import DoubleElimination
+from src.round_robin import RoundRobin
+from src.swiss import Swiss
 
 class Tournament:
     """A tournament bracket for a given set of competitors."""

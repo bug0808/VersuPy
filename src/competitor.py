@@ -1,5 +1,5 @@
 class Competitor:
-    def __init__(self, name, wins=0):
+    def __init__(self, name: str, wins: int = 0) -> None:
         self.wins = wins
         self.name = name
         self.has_bye = False

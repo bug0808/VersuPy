@@ -1,6 +1,6 @@
 import pytest
-from VersuPy.competitor import Competitor
-from VersuPy.match import Match
+from src.competitor import Competitor
+from src.match import Match
 
 
 def test_match_initialization():

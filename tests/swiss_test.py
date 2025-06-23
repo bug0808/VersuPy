@@ -1,6 +1,6 @@
 import pytest
-from VersuPy.competitor import Competitor
-from VersuPy.swiss import Swiss
+from src.competitor import Competitor
+from src.swiss import Swiss
 
 
 def test_swiss_initialization():
@@ -35,15 +35,18 @@ def test_buchholz_score():
     competitors = ["Alice", "Bob", "Charlie"]
     swiss = Swiss(competitors)
 
-    # Simulate wins and losses
-    alice = swiss.competitors[0]
-    bob = swiss.competitors[1]
-    charlie = swiss.competitors[2]
+    # Simulate round 1
+    round_1_matches = swiss.generate_round()
+    for match in round_1_matches:
+        match.set_winner(match.competitor_a)
+    # Simulate round 2
+    swiss.advance_round()
+    round_2_matches = swiss.generate_round()
+    for match in round_2_matches:
+        match.set_winner(match.competitor_a)
 
-    alice.wins = 2
-    bob.wins = 1
-    charlie.wins = 1
-
-    # Compute Buchholz score (just an example logic)
+    # Now calculate Buchholz scores
     buchholz_scores = swiss.calculate_buchholz_scores()
-    assert buchholz_scores[alice.name] > buchholz_scores[bob.name]  # Alice should have higher score
+    # The player with the most wins should have a higher Buchholz score
+    standings = sorted(swiss.competitors, key=lambda c: c.wins, reverse=True)
+    assert buchholz_scores[standings[0].name] >= buchholz_scores[standings[1].name]

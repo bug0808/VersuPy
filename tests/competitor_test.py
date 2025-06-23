@@ -1,5 +1,4 @@
-import pytest
-from VersuPy.competitor import Competitor
+from src.competitor import Competitor
 
 def test_create_competitor():
     """Test creating a competitor."""
