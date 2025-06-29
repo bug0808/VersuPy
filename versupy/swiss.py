@@ -1,8 +1,23 @@
 from typing import List, Optional, Dict, Union
-from src.match import Match
-from src.competitor import Competitor
+from versupy.match import Match
+from versupy.competitor import Competitor
 
 class Swiss:
+    @property
+    def rounds(self) -> list:
+        """Expose rounds in a similar way to other tournament types."""
+        return self.matches
+
+    def get_current_round_matches(self) -> List[Match]:
+        """Return the matches for the current round (last generated round)."""
+        if not self.matches:
+            # Generate the first round if not already generated
+            return self.generate_round_pairings()
+        return self.matches[-1]
+
+    def get_results(self) -> List[tuple[Competitor, Competitor, Optional[Competitor]]]:
+        """Return all match results as (a, b, winner) tuples."""
+        return self.results.copy()
     """
     Swiss-system tournament implementation.
     """

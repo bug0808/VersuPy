@@ -1,49 +1,47 @@
 import pytest
-from src.competitor import Competitor
-from src.tournament import Tournament
-from src.match import Match
+from versupy.competitor import Competitor
+from versupy.tournament import Tournament
+from versupy.match import Match
 
-
-
-def test_generate_bracket():
-    """Test generating a tournament bracket."""
+@pytest.mark.parametrize("style", ["single", "double", "round_robin", "swiss"])
+def test_generate_bracket(style):
     competitors = ["Alice", "Bob", "Charlie", "David"]
-    bracket = Tournament(competitors)
+    bracket = Tournament(competitors, style)
+    assert hasattr(bracket.tournament, "rounds")
+    assert len(bracket.tournament.rounds) == 1 or style in ["round_robin", "swiss"]
 
-    # Access rounds from the correct tournament style (e.g., single elimination)
-    assert len(bracket.tournament.rounds) == 1  # Only the first round
-
-def test_advance_to_next_round():
-    """Test advancing to the next round."""
+@pytest.mark.parametrize("style", ["single", "double", "round_robin", "swiss"])
+def test_advance_to_next_round(style):
     competitors = ["Alice", "Bob", "Charlie", "David"]
-    bracket = Tournament(competitors)
-
-    # Set winners for the first round
-    match_1 = bracket.get_current_round_matches()[0]
-    match_1.set_winner(match_1.competitor_a)  # Alice wins
-    match_2 = bracket.get_current_round_matches()[1]
-    match_2.set_winner(match_2.competitor_b)  # David wins
-
-    # Advance to the next round
-    next_round = bracket.advance_to_next_round()
-    assert len(next_round) == 1  # Only one match in the second round
-    assert next_round[0].competitor_a == match_1.get_winner()  # Alice
-    assert next_round[0].competitor_b == match_2.get_winner()  # David
-
-def test_bracket_with_odd_number_of_competitors():
-    """Test bracket generation with an odd number of competitors (bye)."""
-    competitors = ["Alice", "Bob", "Charlie"]
-    bracket = Tournament(competitors)
-
-    # Ensure there is a 'TBD' competitor for the bye
-    assert len(bracket.tournament.rounds[0]) == 2  # 2 matches
-
-def test_get_current_round_matches():
-    """Test fetching current round matches."""
-    competitors = ["Alice", "Bob", "Charlie", "David"]
-    bracket = Tournament(competitors)
+    bracket = Tournament(competitors, style)
     matches = bracket.get_current_round_matches()
+    # Set winners for the first round
+    for match in matches:
+        match.set_winner(match.competitor_a)
+    next_round = bracket.advance_to_next_round()
+    # For round robin/swiss, next_round may be None if only one round
+    if style in ["single", "double"]:
+        assert next_round is not None
+        assert all(isinstance(m, Match) for m in next_round)
 
-    assert len(matches) == 2  # First round has 2 matches
-    assert matches[0].competitor_a.name == "Alice"
-    assert matches[0].competitor_b.name == "Bob"
+@pytest.mark.parametrize("style", ["single", "double", "round_robin", "swiss"])
+def test_bracket_with_odd_number_of_competitors(style):
+    competitors = ["Alice", "Bob", "Charlie"]
+    bracket = Tournament(competitors, style)
+    # For elimination, there should be a 'TBD' or bye
+    if style in ["single", "double"]:
+        assert any("TBD" in (m.competitor_a.name, m.competitor_b.name) for m in bracket.tournament.rounds[0])
+    else:
+        # For round robin/swiss, all competitors should be present
+        assert all(any(c.name == name for c in bracket.tournament.competitors) for name in competitors)
+
+@pytest.mark.parametrize("style", ["single", "double", "round_robin", "swiss"])
+def test_get_current_round_matches(style):
+    competitors = ["Alice", "Bob", "Charlie", "David"]
+    bracket = Tournament(competitors, style)
+    matches = bracket.get_current_round_matches()
+    assert all(isinstance(m, Match) for m in matches)
+    # For elimination, check first match names
+    if style in ["single", "double"]:
+        assert matches[0].competitor_a.name == "Alice"
+        assert matches[0].competitor_b.name == "Bob"

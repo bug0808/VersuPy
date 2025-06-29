@@ -1,6 +1,5 @@
-import pytest
-from src.competitor import Competitor
-from src.swiss import Swiss
+from versupy.competitor import Competitor
+from versupy.swiss import Swiss
 
 
 def test_swiss_initialization():

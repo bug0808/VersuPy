@@ -1,6 +1,6 @@
 from typing import Optional, TYPE_CHECKING
 if TYPE_CHECKING:
-    from src.competitor import Competitor
+    from versupy.competitor import Competitor
 
 class Match:
     """Represents a match between two competitors."""

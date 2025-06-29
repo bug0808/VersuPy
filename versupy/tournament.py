@@ -1,17 +1,17 @@
 from typing import List, Union, Optional, Any
-from src.single_elim import SingleElimination
-from src.double_elim import DoubleElimination
-from src.round_robin import RoundRobin
-from src.swiss import Swiss
-from src.competitor import Competitor
-from src.match import Match
+from versupy.single_elim import SingleElimination
+from versupy.double_elim import DoubleElimination
+from versupy.round_robin import RoundRobin
+from versupy.swiss import Swiss
+from versupy.competitor import Competitor
+from versupy.match import Match
 
 class Tournament:
     """
     A tournament bracket for a given set of competitors.
     Supports single elimination, double elimination, round robin, and swiss formats.
     """
-    def __init__(self, competitors: Union[List[str], List[Competitor]], style: str = "single") -> None:
+    def __init__(self, competitors: Union[List[str], List[Competitor]], style: str) -> None:
         """
         Initialize a tournament bracket of the selected style.
 
@@ -72,3 +72,27 @@ class Tournament:
         """
         if hasattr(self.tournament, "get_champion"):
             return self.tournament.get_champion()
+
+    def set_winner(self, match: Match, winner: Competitor) -> None:
+        """
+        Set the winner of a match.
+
+        Args:
+            match: The match to set the winner for.
+            winner: The competitor who won the match.
+        """
+        if hasattr(self.tournament, "set_winner_and_track"):
+            self.tournament.set_winner_and_track(match, winner)
+        else:
+            match.set_winner(winner)
+
+    def get_results(self) -> List[tuple[Competitor, Competitor, Optional[Competitor]]]:
+        """
+        Get all tournament results.
+
+        Returns:
+            List of result tuples (competitor_a, competitor_b, winner).
+        """
+        if hasattr(self.tournament, "get_results"):
+            return self.tournament.get_results()
+        return []

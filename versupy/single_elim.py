@@ -1,6 +1,6 @@
 from typing import List, Optional
-from src.match import Match
-from src.competitor import Competitor
+from versupy.match import Match
+from versupy.competitor import Competitor
 import math
 
 class SingleElimination:

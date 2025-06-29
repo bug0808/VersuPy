@@ -1,4 +1,4 @@
-from src.competitor import Competitor
+from versupy.competitor import Competitor
 
 def test_create_competitor():
     """Test creating a competitor."""

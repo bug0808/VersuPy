@@ -1,5 +1,5 @@
-from src.round_robin import RoundRobin
-from src.competitor import Competitor
+from versupy.round_robin import RoundRobin
+from versupy.competitor import Competitor
 
 def test_round_robin_initialization():
     competitors = [Competitor("Alice"), Competitor("Bob"), Competitor("Charlie"), Competitor("David")]

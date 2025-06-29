@@ -1,6 +1,6 @@
 import pytest
-from src.single_elim import SingleElimination
-from src.competitor import Competitor
+from versupy.single_elim import SingleElimination
+from versupy.competitor import Competitor
 
 def test_single_elim_initialization():
     competitors = ["Alice", "Bob", "Charlie", "David"]
