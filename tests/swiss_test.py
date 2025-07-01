@@ -24,7 +24,7 @@ def test_swiss_rounds():
         match.set_winner(match.competitor_a)  # Assume competitor_a wins each match
 
     # Progress to next round
-    swiss.advance_round()
+    swiss.advance_to_next_round()
     round_2_matches = swiss.generate_round()
     assert len(round_2_matches) == 2  # Round 2 should also have 2 matches
 
@@ -39,7 +39,7 @@ def test_buchholz_score():
     for match in round_1_matches:
         match.set_winner(match.competitor_a)
     # Simulate round 2
-    swiss.advance_round()
+    swiss.advance_to_next_round()
     round_2_matches = swiss.generate_round()
     for match in round_2_matches:
         match.set_winner(match.competitor_a)
@@ -59,7 +59,7 @@ def test_results_tracking_swiss():
         match.set_winner(match.competitor_a)
     swiss.record_match_results([match.competitor_a for match in round_1_matches])
     # Round 2
-    swiss.advance_round()
+    swiss.advance_to_next_round()
     round_2_matches = swiss.generate_round()
     for match in round_2_matches:
         match.set_winner(match.competitor_b)

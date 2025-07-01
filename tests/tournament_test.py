@@ -7,8 +7,22 @@ from versupy.match import Match
 def test_generate_bracket(style):
     competitors = ["Alice", "Bob", "Charlie", "David"]
     bracket = Tournament(competitors, style)
-    assert hasattr(bracket.tournament, "rounds")
-    assert len(bracket.tournament.rounds) == 1 or style in ["round_robin", "swiss"]
+    t = bracket.tournament
+    if style == "single":
+        assert hasattr(t, "rounds")
+        assert len(t.rounds) == 1
+    elif style == "double":
+        # DoubleElimination has winners_bracket and losers_bracket
+        assert hasattr(t, "winners_bracket")
+        assert hasattr(t.winners_bracket, "rounds")
+        assert len(t.winners_bracket.rounds) == 1
+    elif style == "round_robin":
+        # RoundRobin has matches instead of rounds
+        assert hasattr(t, "matches")
+        # For 4 competitors, there should be 6 matches (n*(n-1)/2)
+        assert len(t.matches) == 6
+    elif style == "swiss":
+        assert hasattr(t, "rounds")
 
 @pytest.mark.parametrize("style", ["single", "double", "round_robin", "swiss"])
 def test_advance_to_next_round(style):
@@ -28,12 +42,13 @@ def test_advance_to_next_round(style):
 def test_bracket_with_odd_number_of_competitors(style):
     competitors = ["Alice", "Bob", "Charlie"]
     bracket = Tournament(competitors, style)
-    # For elimination, there should be a 'TBD' or bye
-    if style in ["single", "double"]:
-        assert any("TBD" in (m.competitor_a.name, m.competitor_b.name) for m in bracket.tournament.rounds[0])
+    t = bracket.tournament
+    if style == "single":
+        assert any("TBD" in (m.competitor_a.name, m.competitor_b.name) for m in t.rounds[0])
+    elif style == "double":
+        assert any("TBD" in (m.competitor_a.name, m.competitor_b.name) for m in t.winners_bracket.rounds[0])
     else:
-        # For round robin/swiss, all competitors should be present
-        assert all(any(c.name == name for c in bracket.tournament.competitors) for name in competitors)
+        assert all(any(c.name == name for c in t.competitors) for name in competitors)
 
 @pytest.mark.parametrize("style", ["single", "double", "round_robin", "swiss"])
 def test_get_current_round_matches(style):

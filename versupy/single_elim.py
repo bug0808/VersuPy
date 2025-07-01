@@ -52,10 +52,16 @@ class SingleElimination:
                 # Already tracked above, so nothing more to do
                 pass
             return None
-        next_round_matches: List[Match] = [
-            Match(winners[i], winners[i + 1])
-            for i in range(0, len(winners), 2)
-        ]
+        next_round_matches: List[Match] = []
+        i = 0
+        while i < len(winners):
+            if i + 1 < len(winners):
+                next_round_matches.append(Match(winners[i], winners[i + 1]))
+                i += 2
+            else:
+                # Odd competitor advances automatically (bye)
+                next_round_matches.append(Match(winners[i], Competitor("TBD")))
+                i += 1
         self.rounds.append(next_round_matches)
         self.current_round += 1
         return next_round_matches

@@ -3,24 +3,10 @@ from versupy.match import Match
 from versupy.competitor import Competitor
 
 class Swiss:
-    @property
-    def rounds(self) -> list:
-        """Expose rounds in a similar way to other tournament types."""
-        return self.matches
-
-    def get_current_round_matches(self) -> List[Match]:
-        """Return the matches for the current round (last generated round)."""
-        if not self.matches:
-            # Generate the first round if not already generated
-            return self.generate_round_pairings()
-        return self.matches[-1]
-
-    def get_results(self) -> List[tuple[Competitor, Competitor, Optional[Competitor]]]:
-        """Return all match results as (a, b, winner) tuples."""
-        return self.results.copy()
     """
     Swiss-system tournament implementation.
     """
+
     def __init__(self, competitors: Union[List[str], List[Competitor]], rounds: Optional[int] = None) -> None:
         """
         Initialize a Swiss-system tournament.
@@ -35,11 +21,25 @@ class Swiss:
                 c.matches = []
         self.round: int = 1
         self.rounds_played: int = 0
+        self.current_round: int = 0
         self.max_rounds: int = rounds if rounds else len(competitors) - 1
         self.matches: List[List[Match]] = []
         self._all_competitors: List[Competitor] = list(self.competitors)
         self.results: List[tuple[Competitor, Competitor, Optional[Competitor]]] = []
-        
+
+    # --- Round and Match Management ---
+
+    @property
+    def rounds(self) -> list:
+        """Expose rounds in a similar way to other tournament types."""
+        return self.matches
+
+    def get_current_round_matches(self) -> List[Match]:
+        """Return the matches for the current round (last generated round)."""
+        if not self.matches:
+            # Generate the first round if not already generated
+            return self.generate_round_pairings()
+        return self.matches[-1]
 
     def generate_round(self) -> List[Match]:
         """
@@ -84,6 +84,18 @@ class Swiss:
         self.matches.append(new_matches)
         return new_matches
 
+    def advance_to_next_round(self):
+        """
+        Advance to the next round if possible and return the new round's matches.
+        """
+        if self.rounds_played < self.max_rounds:
+            self.rounds_played += 1
+            self.current_round += 1
+            return self.generate_round_pairings()
+        return None
+
+    # --- Results and Standings ---
+
     def record_match_results(self, results: List[Competitor]) -> None:
         """
         Record the results for the current round and update the results log.
@@ -95,7 +107,10 @@ class Swiss:
             match.set_winner(winner)
             winner.wins += 1
             self.results.append((match.competitor_a, match.competitor_b, winner))
-        
+
+    def get_results(self) -> List[tuple[Competitor, Competitor, Optional[Competitor]]]:
+        """Return all match results as (a, b, winner) tuples."""
+        return self.results.copy()
 
     def calculate_buchholz_scores(self) -> Dict[str, int]:
         """
@@ -114,15 +129,6 @@ class Swiss:
             competitor.buchholz_score = score
         return buchholz_scores
 
-    def advance_round(self) -> None:
-        """
-        Advance to the next round if possible.
-        """
-        if self.rounds_played < self.max_rounds:
-            self.generate_round_pairings()
-            self.rounds_played += 1
-        
-
     def get_standings(self) -> List[Competitor]:
         """
         Return competitors sorted by their final standings, considering Buchholz if necessary.
@@ -132,6 +138,8 @@ class Swiss:
         """
         self.calculate_buchholz_scores()
         return sorted(self._all_competitors, key=lambda c: (c.wins, getattr(c, "buchholz_score", 0)), reverse=True)
+
+    # --- Tournament State ---
 
     def is_tournament_over(self) -> bool:
         """
