@@ -32,9 +32,8 @@ dependencies = []
 dev = ["pytest>=7.0", "black", "flake8", "mypy"]
 
 [project.urls]
-"Homepage" = "https://github.com/yourusername/versupy"
-"Bug Reports" = "https://github.com/yourusername/versupy/issues"
-"Source" = "https://github.com/yourusername/versupy"
+"Homepage" = "https://github.com/bug0808/VersuPy"
+"Source" = "https://github.com/bug0808/VersuPy"
 
 [tool.setuptools.packages.find]
 where = ["."]
